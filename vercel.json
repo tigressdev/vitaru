@@ -1,3 +1,11 @@
 {
-  "cleanUrls": true
+  "framework": "astro",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "redirects": [
+    { "source": "/demoapp", "destination": "/ru/demo", "permanent": false },
+    { "source": "/demoapp/:path*", "destination": "/ru/demo", "permanent": false }
+  ]
 }

@@ -1,0 +1,328 @@
+---
+import '../styles/global.css';
+import '../styles/cycle.css';
+import { dictionaries, type Lang } from '../content';
+import { regions } from '../content/ancestry-loo';
+import Cycle from './Cycle.astro';
+import Transform from './Transform.astro';
+
+interface Props {
+  lang: Lang;
+  /** The root URL: Russian by default, but honours a language the visitor explicitly chose. */
+  isRoot?: boolean;
+}
+
+const { lang, isRoot = false } = Astro.props;
+const t = dictionaries[lang];
+const site = Astro.site!.origin;
+const canonical = `${site}/${lang}`;
+const demoHref = `/${lang}/demo`;
+
+type StatusKey = keyof typeof t.statusLabels;
+const glyph: Record<StatusKey, string> = {
+  tested: '●', unvalidated: '◐', prototype: '◇', design: '○', deferred: '–',
+  limit: '△', withdrawn: '✕', corrected: '✓', pending: '↻',
+};
+const status = (s: string) => s as StatusKey;
+
+const panels = [
+  { name: t.ancestry.chart.europe, rows: regions.filter((r) => r.europe) },
+  { name: t.ancestry.chart.other, rows: regions.filter((r) => !r.europe) },
+];
+const c = t.ancestry.chart;
+const pct = (n: number) => (lang === 'ru' ? `${n} %` : `${n}%`);
+const tip = (r: (typeof regions)[number]) =>
+  `${r[lang]}\n${c.tipWeighted}: ${pct(r.own)}\n${c.tipClassic}: ${pct(r.classic)}\n${c.tipTop}: ${r.top} ${c.of3}`;
+
+const strand = (sign: number) =>
+  Array.from({ length: 80 }, (_, i) => {
+    const u = i / 79;
+    return `${i === 0 ? 'M' : 'L'} ${(60 + sign * Math.sin(u * Math.PI * 4) * 36).toFixed(1)} ${(u * 460 + 10).toFixed(1)}`;
+  }).join(' ');
+const rungs = Array.from({ length: 22 }, (_, i) => {
+  const u = (i + 0.5) / 22;
+  const dx = Math.sin(u * Math.PI * 4) * 36;
+  return { x1: 60 + dx, x2: 60 - dx, y: u * 460 + 10 };
+});
+const figText = (name: string, n: number) => `${t.figures.prefix} ${n}. ${name} · ${t.figures.schematic}`;
+---
+
+<!doctype html>
+<html lang={t.htmlLang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{t.meta.title}</title>
+    <meta name="description" content={t.meta.description} />
+    <meta name="theme-color" content="#050e08" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="ru" href={`${site}/ru`} />
+    <link rel="alternate" hreflang="en" href={`${site}/en`} />
+    <link rel="alternate" hreflang="x-default" href={`${site}/`} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="VitaCodex" />
+    <meta property="og:title" content={t.meta.title} />
+    <meta property="og:description" content={t.meta.description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={t.meta.ogLocale} />
+    <meta property="og:locale:alternate" content={t.meta.ogAltLocale} />
+    <script is:inline>document.documentElement.classList.add('js');</script>
+    {isRoot && (
+      <script is:inline>
+        try { if (localStorage.getItem('vc-lang') === 'en') location.replace('/en' + location.hash); } catch (e) {}
+      </script>
+    )}
+  </head>
+  <body id="top">
+    <a class="skip" href="#content">{t.a11y.skip}</a>
+    <div class="grid-bg" aria-hidden="true"></div>
+    <canvas class="field" data-field aria-hidden="true"></canvas>
+    <svg class="helix-fallback" viewBox="0 0 120 480" role="img" aria-label={t.a11y.fallbackHelix}>
+      {rungs.map((r) => <line x1={r.x1} x2={r.x2} y1={r.y} y2={r.y} stroke="#3f6df6" stroke-opacity="0.5" />)}
+      <path d={strand(1)} fill="none" stroke="#2ec98f" stroke-width="1.6" />
+      <path d={strand(-1)} fill="none" stroke="#b846ff" stroke-width="1.6" />
+    </svg>
+    <div class="figcap" aria-hidden="true"><span data-figcap></span><span data-figcount></span></div>
+
+    <header class="header" data-header>
+      <a class="brand" href={`/${lang}#business`} aria-label={t.a11y.home}>vita<span>codex</span></a>
+      <nav class="maintabs" aria-label={t.a11y.tabs}>
+        <a href="#business" data-maintab="business" aria-current="page">{t.tabs.business}</a>
+        <a href="#proof" data-maintab="proof">{t.tabs.proof}</a>
+      </nav>
+      <a class="demo-cta" href={demoHref} data-demo-cta>
+        <i aria-hidden="true"></i><span class="long">{t.demoCta}</span><span class="short">{t.demoCtaShort}</span>
+      </a>
+      <div class="lang" role="group" aria-label={t.a11y.langGroup}>
+        <a href="/ru" hreflang="ru" lang="ru" data-lang-link="ru" aria-label={t.a11y.langRu} aria-current={lang === 'ru' ? 'true' : undefined}>RU</a>
+        <i aria-hidden="true">|</i>
+        <a href="/en" hreflang="en" lang="en" data-lang-link="en" aria-label={t.a11y.langEn} aria-current={lang === 'en' ? 'true' : undefined}>EN</a>
+      </div>
+    </header>
+
+    <main id="content">
+      <div data-tabpanel="business" id="business">
+        <section class="sec sec-hero" id="cycle" data-scene="helix" data-dim="0.1">
+          <Cycle t={t} demoHref={demoHref} />
+        </section>
+
+        <section class="sec sec-tf" id="transform" data-scene="helix" data-dim="0.08">
+          <Transform t={t} />
+        </section>
+
+        <section class="sec" id="problem" data-scene="manhattan" data-fig={figText(t.figures.manhattan, 1)}>
+          <div class="wrap">
+            <div class="col" data-reveal>
+              <p class="kicker">{t.problem.kicker}</p>
+              <h2>{t.problem.title}</h2>
+              <p class="body">{t.problem.body}</p>
+              <ul class="quotes">
+                {t.problem.quotes.map((q) => <li><q>{q.text}</q><cite>{q.who}</cite></li>)}
+              </ul>
+              <p class="note">{t.problem.quotesNote}</p>
+              <p class="label" style="margin-top:34px">{t.problem.statsLabel}</p>
+              <ul class="stats" style="margin-top:0">
+                {t.problem.stats.map((s) => <li><b>{s.value}</b><span>{s.label}</span></li>)}
+              </ul>
+              <p class="bridge">{t.problem.bridge}</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="sec" id="buyers" data-scene="network" data-fig={figText(t.figures.network, 2)}>
+          <div class="wrap">
+            <div class="col" data-reveal>
+              <p class="kicker">{t.business.kicker}</p>
+              <h2>{t.business.title}</h2>
+              <p class="body">{t.business.body}</p>
+            </div>
+            <div class="models four after" data-reveal>
+              {t.business.buyers.map((b) => (
+                <article><h3>{b.name}</h3><p>{b.text}</p><p class="tagline">{b.tag}</p></article>
+              ))}
+            </div>
+            <div class="two" style="margin-top:26px">
+              <article class="plate" data-reveal>
+                <p class="label">{t.business.modelLabel}</p>
+                <div class="scen">
+                  {t.business.scenarios.map((s) => (
+                    <div>
+                      <h3>{s.name}</h3>
+                      <dl>
+                        <div><dd>{s.mrr}</dd><dt>{s.mrrLabel}</dt></div>
+                        <div><dd>{s.be}</dd><dt>{s.beLabel}</dt></div>
+                        <div><dd>{s.clients}</dd><dt>{s.clientsLabel}</dt></div>
+                      </dl>
+                    </div>
+                  ))}
+                </div>
+                <p class="note">{t.business.modelNote} {t.business.unit}</p>
+              </article>
+              <article class="plate" data-reveal>
+                <p class="label">{t.business.pilotLabel}</p>
+                <ol class="pilot">
+                  {t.business.pilot.map((p) => <li><b>{p.name}</b><span>{p.text}</span></li>)}
+                </ol>
+              </article>
+            </div>
+            <div class="band" data-reveal>
+              <div><h3>{t.business.bandTitle}</h3><p>{t.business.bandBody}</p></div>
+              <a class="btn" href={demoHref}>{t.demoCta}</a>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div data-tabpanel="proof" id="proof">
+        <section class="sec" id="moat" data-scene="layers" data-fig={figText(t.figures.layers, 3)}>
+          <div class="wrap">
+            <div class="col" data-reveal>
+              <p class="kicker">{t.moat.kicker}</p>
+              <h2>{t.moat.title}</h2>
+              <p class="body">{t.moat.body}</p>
+              <ol class="layers" style="margin-top:26px">
+                {t.moat.layers.map((l) => <li><code>{l.name}</code><span>{l.desc}</span><em>{l.size}</em></li>)}
+              </ol>
+              <p class="note">{t.moat.sourcesLabel}: {t.moat.sources}</p>
+            </div>
+            <div class="plate after" data-reveal>
+              <p class="label">{t.moat.compareLabel}</p>
+              <table class="cmp">
+                <thead><tr><th>{t.moat.compareHead.before}</th><th>{t.moat.compareHead.after}</th></tr></thead>
+                <tbody>{t.moat.compare.map((r) => <tr><td><s>{r.before}</s></td><td>{r.after}</td></tr>)}</tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="sec" id="gates" data-scene="gates" data-fig={figText(t.figures.gates, 4)}>
+          <div class="wrap">
+            <div class="col" data-reveal>
+              <p class="kicker">{t.gates.kicker}</p>
+              <h2>{t.gates.title}</h2>
+              <p class="body">{t.gates.body}</p>
+            </div>
+            <div class="plate after" data-reveal data-tabs="gate">
+              <div class="tabs" data-tablist aria-label={t.gates.tabsLabel} style="margin-top:0">
+                {t.gates.items.map((g, i) => <button type="button" data-tab={g.key}>{i + 1}. {g.tab}</button>)}
+              </div>
+              {t.gates.items.map((g) => (
+                <div class="gate" data-panel={g.key}>
+                  <h3>{g.q}</h3>
+                  <span class={`chip ${g.status}`}><i aria-hidden="true">{glyph[status(g.status)]}</i>{t.statusLabels[status(g.status)]}</span>
+                  <div class="cols">
+                    <div><p class="label" style="margin-bottom:6px">{t.gates.existsLabel}</p><p>{g.exists}</p></div>
+                    <div><p class="label" style="margin-bottom:6px">{t.gates.missingLabel}</p><p>{g.missing}</p></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section class="sec" id="ancestry" data-scene="admixture" data-fig={figText(t.figures.admixture, 5)}>
+          <div class="wrap">
+            <div class="col" data-reveal>
+              <p class="kicker">{t.ancestry.kicker}</p>
+              <h2>{t.ancestry.title}</h2>
+              <p class="body">{t.ancestry.body}</p>
+              <ul class="stats">{t.ancestry.kpis.map((s) => <li><b>{s.value}</b><span>{s.label}</span></li>)}</ul>
+            </div>
+            <figure class="plate chart after" data-reveal>
+              <header><h3>{c.title}</h3><p class="sub">{c.sub}</p></header>
+              <div class="panels">
+                {panels.map((p) => (
+                  <div>
+                    <h4>{p.name}</h4>
+                    <ol>
+                      {p.rows.map((r, i) => (
+                        <li class="row" data-tip={tip(r)}>
+                          <span class="rl">{r[lang]}</span>
+                          <span class="track">
+                            <span class="stem" style={`width:${r.own}%`}></span>
+                            <span class="dot" style={`left:${r.own}%`}></span>
+                            {(i === 0 || i === p.rows.length - 1) && (
+                              <span class="v" style={r.own > 80 ? `right:${100 - r.own + 3}%` : `left:calc(${r.own}% + 10px)`}>{pct(r.own)}</span>
+                            )}
+                          </span>
+                        </li>
+                      ))}
+                    </ol>
+                    <div class="ticks" aria-hidden="true"><div>{[0, 25, 50, 75, 100].map((n) => <span>{n}</span>)}</div></div>
+                  </div>
+                ))}
+              </div>
+              <p class="axis">{c.axis}</p>
+              <div class="tip" data-tip-box hidden></div>
+              <details class="toggle">
+                <summary>{c.tableToggle}</summary>
+                <div class="scroll-x">
+                  <table>
+                    <thead><tr><th>{c.tableRegion}</th><th class="num">{c.tableWeighted}</th><th class="num">{c.tableClassic}</th><th class="num">{c.tableTop}</th></tr></thead>
+                    <tbody>
+                      {regions.map((r) => <tr><td>{r[lang]}</td><td class="num">{pct(r.own)}</td><td class="num">{pct(r.classic)}</td><td class="num">{r.top} {c.of3}</td></tr>)}
+                    </tbody>
+                  </table>
+                </div>
+              </details>
+              <p class="note">{t.ancestry.limits}</p>
+            </figure>
+          </div>
+        </section>
+
+        <section class="sec" id="register" data-scene="ring" data-dim="0.4" data-fig={figText(t.figures.ring, 6)}>
+          <div class="wrap">
+            <div class="col" data-reveal>
+              <p class="kicker">{t.register.kicker}</p>
+              <h2>{t.register.title}</h2>
+              <p class="body">{t.register.body}</p>
+            </div>
+            <div class="plate after" data-reveal>
+              <table class="log">
+                <thead><tr><th>{t.register.head.date}</th><th>{t.register.head.claim}</th><th>{t.register.head.finding}</th><th>{t.register.head.standing}</th></tr></thead>
+                <tbody>
+                  {t.register.rows.map((r) => (
+                    <tr><td>{r.date}</td><td>{r.claim}</td><td>{r.finding}</td><td><span class={`chip ${r.status}`}><i aria-hidden="true">{glyph[status(r.status)]}</i>{t.statusLabels[status(r.status)]}</span></td></tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="sec" id="status" data-scene="helix" data-dim="0.6" data-fig={figText(t.figures.closing, 7)}>
+          <div class="wrap">
+            <div class="col" data-reveal>
+              <p class="kicker">{t.status.kicker}</p>
+              <h2>{t.status.title}</h2>
+            </div>
+            <div class="board three" data-reveal>
+              {t.status.groups.map((g) => (
+                <section>
+                  <span class={`chip ${g.status}`}><i aria-hidden="true">{glyph[status(g.status)]}</i>{t.statusLabels[status(g.status)]}</span>
+                  <ul>{g.items.map((i) => <li>{i}</li>)}</ul>
+                </section>
+              ))}
+            </div>
+            <ul class="limits col" style="margin-top:26px" data-reveal>{t.status.boundaries.map((b) => <li>{b}</li>)}</ul>
+            <p class="closing" data-reveal>{t.status.closing}</p>
+            <p style="margin-top:26px" data-reveal><a class="btn" href={demoHref}>{t.demoCta}</a></p>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="wrap">
+        <span>{t.footer.line}</span>
+        <span>{t.footer.note}</span>
+        <a href="#top">{t.footer.top}</a>
+      </div>
+    </footer>
+
+    <script>
+      import '../scripts/ui';
+    </script>
+  </body>
+</html>

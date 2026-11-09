@@ -1,0 +1,162 @@
+/* Cycle hero and transform slider: visual language of the pitch's dark sections. */
+.cy, .tf { position: relative; max-width: 1280px; margin-inline: auto; }
+.cy-head { text-align: center; margin-bottom: 44px; }
+.cy-badge {
+  display: inline-flex; align-items: center; gap: 8px; margin-bottom: 16px; padding: 8px 16px;
+  border: 1px solid rgba(46, 201, 143, 0.25); background: rgba(46, 201, 143, 0.1); border-radius: 999px;
+  font-size: 12px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: #fff;
+}
+.cy-badge svg { width: 16px; height: 16px; }
+.cy-head h1, .cy-head h2 {
+  font-weight: 600; letter-spacing: -0.04em; line-height: 1.08; color: #fff; margin: 0; font-size: clamp(1.9rem, 4.1vw, 3.3rem);
+}
+.cy-head h2 { max-width: 20em; margin-inline: auto; }
+.cy-head h1 span { display: block; margin-top: 4px; color: var(--emerald); }
+.cy-head p { max-width: 44rem; margin: 20px auto 0; font-size: 16px; line-height: 1.75; color: rgba(255, 255, 255, 0.62); }
+
+.cy-tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 40px; }
+.cy-tabs button {
+  padding: 8px 20px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.45);
+  font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; transition: all 0.25s; min-height: 38px;
+}
+.cy-tabs button:hover { color: rgba(255, 255, 255, 0.7); border-color: rgba(255, 255, 255, 0.2); }
+.cy-tabs button[aria-pressed='true'] { color: #fff; background: var(--on-dim); border-color: var(--on); }
+
+.cy-main { display: grid; gap: 40px; align-items: center; }
+@media (min-width: 1024px) { .cy-main { grid-template-columns: 1fr 1fr; } }
+.cy-orbit { border: 1px solid rgba(255, 255, 255, 0.08); background: rgba(255, 255, 255, 0.02); border-radius: 2rem; padding: 24px; }
+.cy-orbit > svg { display: block; width: 100%; max-width: 560px; margin-inline: auto; }
+.cy-arc { stroke-dasharray: 1 1; stroke-dashoffset: 1; opacity: 0; transition: stroke-dashoffset 1.4s var(--ease), opacity 1.4s var(--ease); }
+.cy-arc.on { stroke-dashoffset: 0; opacity: 1; }
+.cy-halo { opacity: 0; } .cy-halo.on { opacity: 0.08; }
+.cy-node { fill: rgba(255, 255, 255, 0.04); stroke: rgba(255, 255, 255, 0.14); stroke-width: 1.5; transition: fill 0.4s, stroke 0.4s; }
+.cy-node.on { fill: var(--d); stroke: var(--c); stroke-width: 2; }
+.cy-icon { stroke: rgba(255, 255, 255, 0.42); color: rgba(255, 255, 255, 0.42); transition: stroke 0.4s, color 0.4s; }
+.cy-icon.on { stroke: var(--c); color: var(--c); }
+.cy-label .a { font: 700 11.5px var(--display); fill: rgba(255, 255, 255, 0.45); transition: fill 0.4s; }
+.cy-label .b { font: 400 9.5px var(--body); fill: rgba(255, 255, 255, 0.28); transition: fill 0.4s; }
+.cy-label.on .a { fill: #fff; } .cy-label.on .b { fill: var(--c); }
+.cy-hub { font: 700 9px var(--display); fill: rgba(255, 255, 255, 0.6); text-anchor: middle; }
+.cy-count { font: 500 9px var(--mono); fill: rgba(46, 201, 143, 0.9); text-anchor: middle; }
+.cy-loop {
+  display: flex; align-items: center; gap: 8px; width: fit-content; max-width: 100%; margin: 16px auto 0; padding: 8px 16px; text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.04); border-radius: 999px; font-size: 12px; color: rgba(255, 255, 255, 0.5);
+}
+.cy-loop svg { width: 14px; height: 14px; flex: none; }
+
+.cy-data { min-height: 440px; }
+.cy-panel.leaving { animation: cyOut 0.35s var(--ease) both; }
+.cy-panel.entering { animation: cyIn 0.35s var(--ease) both; }
+@keyframes cyIn { from { opacity: 0; transform: translateY(20px); filter: blur(6px); } }
+@keyframes cyOut { to { opacity: 0; transform: translateY(-20px); filter: blur(6px); } }
+html:not(.js) .cy-panel[hidden] { display: block; margin-top: 24px; }
+.cy-phead { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 16px; }
+.cy-icobox { width: 48px; height: 48px; flex: none; display: grid; place-items: center; border: 1px solid; border-radius: 16px; }
+.cy-icobox svg { width: 24px; height: 24px; }
+.cy-stepbadge { font: 500 10.5px/1.4 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; }
+.cy-phead h3 { margin-top: 3px; font-size: 18px; font-weight: 600; line-height: 1.3; color: #fff; letter-spacing: -0.02em; }
+.cy-rows { display: grid; gap: 10px; }
+.cy-row { border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.04); border-radius: 16px; padding: 16px; }
+.cy-panel.entering .cy-row { animation: cyRow 0.4s var(--ease) both; animation-delay: calc(var(--i) * 0.1s); }
+@keyframes cyRow { from { opacity: 0; transform: translateX(12px); } }
+.cy-rowtop { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.cy-rlabel { font: 500 14px/1.4 var(--mono); color: #fff; }
+.cy-rcluster { font-size: 11.5px; color: rgba(255, 255, 255, 0.5); margin-top: 2px; }
+.cy-rvalue { font: 600 14px/1.4 var(--mono); flex: none; }
+.cy-bar { height: 6px; border-radius: 99px; background: rgba(255, 255, 255, 0.1); overflow: hidden; margin-bottom: 8px; }
+.cy-bar i { display: block; height: 100%; width: var(--w); border-radius: 99px; }
+.cy-panel.entering .cy-bar i { animation: cyBar 0.7s ease-out both; animation-delay: calc(var(--i) * 0.1s + 0.2s); }
+@keyframes cyBar { from { width: 0; } }
+.cy-note { font-size: 11.5px; font-style: italic; color: rgba(255, 255, 255, 0.58); }
+.cy-signal { display: flex; align-items: center; gap: 8px; margin-top: 14px; padding: 10px 16px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.05); border-radius: 999px; }
+.cy-signal span { width: 8px; height: 8px; flex: none; border-radius: 50%; animation: cyPulse 1.5s infinite; }
+@keyframes cyPulse { 50% { transform: scale(1.4); } }
+.cy-signal em { font: 400 12px/1.4 var(--mono); font-style: normal; color: rgba(255, 255, 255, 0.7); }
+.cy-scale { margin-top: 10px; font-size: 11.5px; color: rgba(255, 255, 255, 0.42); }
+
+.cy-callout {
+  display: grid; gap: 24px; align-items: center; margin-top: 56px; padding: clamp(22px, 3vw, 32px);
+  border: 1px solid rgba(46, 201, 143, 0.2); background: rgba(46, 201, 143, 0.07); border-radius: 2rem;
+}
+@media (min-width: 880px) { .cy-callout { grid-template-columns: 1fr auto; } }
+.cy-ckick { font: 400 10.5px var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--emerald); margin-bottom: 8px; }
+.cy-callout h2 { font-weight: 600; font-size: clamp(1.4rem, 2.5vw, 1.9rem); margin: 0; color: #fff; }
+.cy-callout p { margin: 10px 0 18px; max-width: 44rem; font-size: 14.5px; line-height: 1.7; color: rgba(255, 255, 255, 0.62); }
+.cy-chips { display: grid; gap: 8px; }
+.cy-chips div { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.04); border-radius: 12px; font-size: 14px; font-weight: 500; color: rgba(255, 255, 255, 0.82); }
+.cy-chips span { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.cy-datanote { margin-top: 14px; text-align: center; font-size: 12.5px; color: var(--ink-3); }
+
+/* Transform slider */
+.tf-markers { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-bottom: 24px; }
+.tf-markers button { text-align: left; padding: 12px 16px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.03); border-radius: 16px; transition: all 0.25s; }
+.tf-markers button:hover { border-color: rgba(255, 255, 255, 0.25); }
+.tf-markers button[aria-pressed='true'] { border-color: rgba(46, 201, 143, 0.6); background: rgba(46, 201, 143, 0.1); }
+.tf-markers b { display: block; font: 500 14px var(--mono); color: #fff; }
+.tf-markers span { display: block; font-size: 12px; color: rgba(255, 255, 255, 0.55); margin-top: 2px; }
+.tf-control { padding: 20px; margin-bottom: 24px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.025); border-radius: 24px; }
+.tf-stages { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.tf-stages div { display: flex; flex-wrap: wrap; gap: 6px 22px; }
+.tf-stages span { font-size: 11.5px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255, 255, 255, 0.3); transition: color 0.2s; }
+.tf-stages span.on { color: #fff; }
+.tf-stages span.now::before { content: ''; display: inline-block; width: 6px; height: 6px; margin-right: 6px; border-radius: 50%; background: var(--emerald); vertical-align: middle; }
+.tf-stages em { font: 400 12px var(--mono); font-style: normal; color: rgba(255, 255, 255, 0.5); }
+.tf-track { position: relative; height: 20px; border-radius: 99px; background: rgba(255, 255, 255, 0.1); cursor: ew-resize; touch-action: none; }
+.tf-fill { position: absolute; inset: 0 auto 0 0; border-radius: 99px; background: rgba(46, 201, 143, 0.6); }
+.tf-tick { position: absolute; top: 50%; width: 1px; height: 12px; margin-top: -6px; background: rgba(255, 255, 255, 0.25); }
+.tf-thumb { position: absolute; top: 50%; width: 36px; height: 36px; margin-top: -18px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.3); background: var(--emerald); box-shadow: 0 0 28px rgba(52, 211, 153, 0.8); }
+.tf-play { display: flex; justify-content: center; margin-top: 18px; }
+.tf-play button { padding: 8px 20px; border: 1px solid rgba(255, 255, 255, 0.15); background: rgba(255, 255, 255, 0.04); border-radius: 999px; font-size: 12px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255, 255, 255, 0.7); min-height: 38px; }
+.tf-play button:hover { color: #fff; border-color: rgba(255, 255, 255, 0.3); }
+.tf-play button.on { border-color: rgba(46, 201, 143, 0.5); background: rgba(46, 201, 143, 0.15); color: #6ee7b7; }
+.tf-stagewrap { display: flex; justify-content: center; margin-bottom: 24px; }
+.tf-stagebadge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border: 1px solid rgba(46, 201, 143, 0.3); background: rgba(46, 201, 143, 0.1); border-radius: 999px; }
+.tf-stagebadge span { width: 6px; height: 6px; border-radius: 50%; background: var(--emerald); }
+.tf-stagebadge b { font-size: 12px; font-weight: 500; color: #6ee7b7; }
+.tf-grid { display: grid; gap: 24px; }
+@media (min-width: 1024px) { .tf-grid { grid-template-columns: 1fr 88px 1fr; } }
+.tf-term { border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(0, 0, 0, 0.6); border-radius: 2rem; overflow: hidden; transition: opacity 0.2s; min-width: 0; }
+.tf-chrome { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+.tf-chrome i { width: 12px; height: 12px; border-radius: 50%; background: rgba(248, 113, 113, 0.7); }
+.tf-chrome i:nth-child(2) { background: rgba(250, 204, 21, 0.7); }
+.tf-chrome i:nth-child(3) { background: rgba(52, 211, 153, 0.7); }
+.tf-chrome span { margin-left: 12px; font: 400 12px var(--mono); color: rgba(255, 255, 255, 0.4); }
+.tf-lines { padding: 20px; font: 400 13.5px/1.8 var(--mono); overflow-wrap: anywhere; }
+.tf-lines div { animation: tfLine 0.25s both; animation-delay: calc(var(--i, 0) * 0.045s); }
+@keyframes tfLine { from { opacity: 0; transform: translateX(-6px); } }
+.tf-lines .c { color: #6ee7b7; font-weight: 500; } .tf-lines .o { color: rgba(255, 255, 255, 0.75); } .tf-lines .e { color: rgba(255, 255, 255, 0.3); }
+.tf-cursor { color: var(--emerald); animation: tfBlink 1s infinite; }
+@keyframes tfBlink { 50% { opacity: 0; } }
+.tf-pipe { display: none; }
+@media (min-width: 1024px) { .tf-pipe { display: flex; flex-direction: column; align-items: center; justify-content: center; } }
+.tf-pipei { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.tf-pipei b { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.15); background: rgba(255, 255, 255, 0.08); font-size: 12px; color: rgba(255, 255, 255, 0.5); transition: all 0.25s; }
+.tf-pipei b.on { background: var(--emerald); color: #000; }
+.tf-pipei b.now { transform: scale(1.15); box-shadow: 0 0 16px rgba(46, 201, 143, 0.6); }
+.tf-pipei span { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255, 255, 255, 0.3); text-align: center; }
+.tf-pipei span.on { color: rgba(255, 255, 255, 0.8); }
+.tf-pipei > i { width: 1px; height: 32px; margin-bottom: 8px; background: rgba(46, 201, 143, 0.6); opacity: 0.2; transition: opacity 0.25s; }
+.tf-pipei > i.on { opacity: 1; }
+.tf-out { display: flex; flex-direction: column; gap: 16px; min-height: 500px; min-width: 0; }
+.tf-card { border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.04); border-radius: 2rem; padding: 20px; transition: opacity 0.3s, filter 0.3s, transform 0.3s; }
+.tf-card.dark { background: rgba(0, 0, 0, 0.4); }
+.tf-card.green { border-color: rgba(46, 201, 143, 0.25); background: rgba(46, 201, 143, 0.08); }
+.tf-card.dark p { margin-top: 8px; min-height: 4rem; font-size: 15.5px; line-height: 1.75; color: #fff; }
+.tf-card.dark p.typing::after { content: '▋'; color: var(--emerald); animation: tfBlink 0.6s infinite; }
+.tf-card.green p { margin-top: 4px; font-size: 14px; line-height: 1.65; color: rgba(255, 255, 255, 0.9); }
+.tf-ctop { display: flex; gap: 16px; align-items: flex-start; }
+.tf-ico { width: 48px; height: 48px; flex: none; display: grid; place-items: center; border-radius: 16px; }
+.tf-ico svg { width: 24px; height: 24px; }
+.tf-k { font-size: 11.5px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255, 255, 255, 0.55); }
+.tf-ctop h3 { margin-top: 4px; font-size: 1.4rem; font-weight: 300; letter-spacing: -0.03em; color: #fff; }
+.tf-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.tf-chips span { padding: 4px 12px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.05); border-radius: 999px; font-size: 12px; color: rgba(255, 255, 255, 0.7); }
+.tf-chips .m { font-family: var(--mono); }
+.tf-dims { display: grid; gap: 8px; margin-top: 14px; }
+@media (min-width: 620px) { .tf-dims { grid-template-columns: repeat(3, 1fr); } }
+.tf-dims div { padding: 10px 12px; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; }
+.tf-dims dt { font-size: 11px; color: rgba(255, 255, 255, 0.5); }
+.tf-dims dd { margin-top: 3px; font-size: 13px; line-height: 1.35; color: #fff; }
+.tf-api { padding: 16px; border: 1px solid rgba(255, 255, 255, 0.08); background: rgba(0, 0, 0, 0.5); border-radius: 16px; font: 400 12px/1.8 var(--mono); color: rgba(255, 255, 255, 0.6); overflow-wrap: anywhere; transition: opacity 0.3s; }
+.tf-api b { color: var(--emerald); font-weight: 500; }
+.tf-api span { color: rgba(255, 255, 255, 0.45); }

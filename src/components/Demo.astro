@@ -1,0 +1,56 @@
+---
+import '../styles/global.css';
+import '../styles/demo.css';
+import { demoDicts } from '../content/demo';
+
+interface Props { lang: 'ru' | 'en' }
+const { lang } = Astro.props;
+const d = demoDicts[lang];
+const scenes = ['helix', 'manhattan', 'layers', 'gates', 'network'];
+---
+
+<!doctype html>
+<html lang={d.htmlLang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{d.title}</title>
+    <meta name="description" content={d.description} />
+    <meta name="theme-color" content="#050e08" />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script is:inline>document.documentElement.classList.add('js');</script>
+  </head>
+  <body data-lang={lang}>
+    <div class="grid-bg" aria-hidden="true"></div>
+    <canvas class="field" data-field aria-hidden="true"></canvas>
+    <div hidden>{scenes.map((s) => <i data-scene={s} data-dim="0.32"></i>)}</div>
+
+    <header class="d-head">
+      <a class="brand" href={`/${lang}#business`}>vita<span>codex</span></a>
+      <span class="d-badge">{d.ui.badge}</span>
+      <nav class="d-nav" data-d-nav aria-label={d.ui.badge}></nav>
+      <div class="d-right">
+        <button type="button" class="d-link" data-act="reset">{d.ui.reset}</button>
+        <div class="lang">
+          <a href="/ru/demo" hreflang="ru" lang="ru" data-lang-link="ru" aria-current={lang === 'ru' ? 'true' : undefined}>RU</a>
+          <i aria-hidden="true">|</i>
+          <a href="/en/demo" hreflang="en" lang="en" data-lang-link="en" aria-current={lang === 'en' ? 'true' : undefined}>EN</a>
+        </div>
+        <a class="d-link" href={`/${lang}#business`}>{d.ui.backToSite}</a>
+      </div>
+    </header>
+    <p class="d-banner" role="note">{d.ui.banner}</p>
+
+    <main class="d-main" data-d-main aria-live="polite"></main>
+    <noscript><p class="d-main">{d.description}</p></noscript>
+
+    <aside class="d-guide" data-d-guide></aside>
+    <div class="d-drawer" data-d-drawer hidden></div>
+    <div class="d-modal" data-d-modal hidden></div>
+
+    <script>
+      import '../scripts/demo';
+    </script>
+  </body>
+</html>

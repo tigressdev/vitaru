@@ -1,0 +1,91 @@
+---
+import type { Dict } from '../content';
+
+// Port of the pitch's TransformDemo: same slider, reveal thresholds and auto-play speed.
+interface Props { t: Dict }
+const { t } = Astro.props;
+const x = t.transform;
+const first = x.markers[0];
+const payload = JSON.stringify(x).replace(/</g, '\\u003c');
+---
+
+<div class="tf" data-transform>
+  <script type="application/json" data-transform-json set:html={payload} />
+  <header class="cy-head">
+    <div class="cy-badge">{x.badge}</div>
+    <h2>{x.title}</h2>
+    <p>{x.sub}</p>
+  </header>
+
+  <div class="tf-markers">
+    {x.markers.map((m, i) => (
+      <button type="button" data-tf-marker={i} aria-pressed={i === 0 ? 'true' : 'false'}>
+        <b>{m.gene}</b><span>{m.group}</span>
+      </button>
+    ))}
+  </div>
+
+  <div class="tf-control">
+    <div class="tf-stages">
+      <div>{x.stages.map((s, i) => <span data-tf-stage={i}>{s}</span>)}</div>
+      <em data-tf-pct>100%</em>
+    </div>
+    <div class="tf-track" data-tf-track role="slider" tabindex="0" aria-label={t.a11y.slider} aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
+      <i class="tf-fill" data-tf-fill style="width:100%"></i>
+      <i class="tf-tick" style="left:33%"></i>
+      <i class="tf-tick" style="left:66%"></i>
+      <i class="tf-thumb" data-tf-thumb style="left:calc(100% - 18px)"></i>
+    </div>
+    <div class="tf-play"><button type="button" data-tf-play>{x.play}</button></div>
+  </div>
+
+  <div class="tf-stagewrap"><div class="tf-stagebadge" data-tf-stagebadge><span></span><b>{x.stages[2]}</b></div></div>
+
+  <div class="tf-grid">
+    <div class="tf-term" data-tf-term>
+      <div class="tf-chrome"><i></i><i></i><i></i><span>{x.terminalTitle}</span></div>
+      <div class="tf-lines" data-tf-lines>
+        {first.terminal.map((l) => <div class={l.startsWith('$') ? 'c' : l.startsWith('>') ? 'o' : 'e'}>{l || ' '}</div>)}
+      </div>
+    </div>
+
+    <div class="tf-pipe" aria-hidden="true">
+      {x.pipeline.map((p, i) => (
+        <div class="tf-pipei">
+          <b data-tf-dot={i}>{i + 1}</b><span data-tf-dotl={i}>{p}</span>
+          {i < 2 && <i data-tf-line={i}></i>}
+        </div>
+      ))}
+    </div>
+
+    <div class="tf-out">
+      <div class="tf-card" data-tf-a="cluster">
+        <div class="tf-ctop">
+          <div class="tf-ico" data-tf-ico style={`background:${first.color}`}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3" /><circle cx="5" cy="5" r="2" /><circle cx="19" cy="5" r="2" /><circle cx="5" cy="19" r="2" /><circle cx="19" cy="19" r="2" /><path d="M7 7l3 3M17 7l-3 3M7 17l3-3M17 17l-3-3" /></svg>
+          </div>
+          <div>
+            <div class="tf-k">{x.stateLabel}</div>
+            <h3 data-tf-state>{first.state}</h3>
+          </div>
+        </div>
+        <div class="tf-chips"><span data-tf-group>{first.group}</span><span class="m" data-tf-gene>{first.gene} · {first.genotype}</span></div>
+        <dl class="tf-dims">
+          {x.dims.map((d, i) => <div><dt>{d}</dt><dd data-tf-dim={i}>{first.dims[i]}</dd></div>)}
+        </dl>
+      </div>
+
+      <div class="tf-card dark" data-tf-a="insight">
+        <div class="tf-k">{x.explains}</div>
+        <p data-tf-insight>{first.insight}</p>
+      </div>
+
+      <div class="tf-card green" data-tf-a="action">
+        <div class="tf-k">{x.next}</div>
+        <p data-tf-action>{first.action}</p>
+      </div>
+
+      <div class="tf-api" data-tf-a="api"><b>POST</b> /v1/clinical/gate<br /><span data-tf-api></span></div>
+    </div>
+  </div>
+</div>
