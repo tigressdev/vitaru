@@ -53,7 +53,9 @@ const guide = q('[data-d-guide]');
 const drawer = q('[data-d-drawer]');
 const modal = q('[data-d-modal]');
 
-const num = (n: number) => (lang === 'ru' ? String(n).replace('.', ',') : String(n));
+const numberFormat = new Intl.NumberFormat(lang === 'ru' ? 'ru-RU' : 'en-US', { maximumFractionDigits: 3 });
+const num = (n: number) => numberFormat.format(n); // display only; the JSON preview keeps raw numbers
+const NB = '\u00a0';
 const finding = (id: string) => FINDINGS.find((f) => f.id === id)!;
 const text = (id: string) => D.findings[id as keyof typeof D.findings];
 const labText = (id: string) => D.labs.items[id as keyof typeof D.labs.items];
@@ -142,22 +144,24 @@ function screenResults() {
 
 function screenLabs() {
   const L = D.labs;
-  const rows = LABS.map((l) => {
+  const labRow = (l: LabData) => {
     const t = labText(l.id);
     const on = S.labs[l.id];
     const high = labHigh(l);
     return `<li class="d-lab ${on ? 'on' : ''}" data-demo="lab-${l.id}">
-      <div class="n"><b>${esc(t.name)}</b><span>${esc(finding(l.finding).gene)} · ${esc(t.ref)} ${esc(t.unit)}</span></div>
+      <div class="n"><b>${esc(t.name)}</b><span>${esc(finding(l.finding).gene)} · ${esc(L.refPrefix)} ${esc(t.ref)}${NB}${esc(t.unit)}</span>${t.note ? `<small>${esc(t.note)}</small>` : ''}</div>
       ${on
-        ? `<div class="v"><b>${num(labValue(l))}</b> <span>${esc(t.unit)}</span><i class="${high ? 'hi' : 'ok'}">${esc(high ? L.above : L.inRange)}</i>${S.visit > 1 && l.retest !== undefined ? `<small>${num(l.value)} → ${num(l.retest)} · ${esc(L.visit2)}</small>` : ''}</div>`
+        ? `<div class="v"><b>${num(labValue(l))}</b>${NB}<span>${esc(t.unit)}</span><i class="${high ? 'hi' : 'ok'}">${esc(high ? L.above : L.inRange)}</i>${S.visit > 1 && l.retest !== undefined ? `<small>${num(l.value)} → ${num(l.retest)} · ${esc(L.visit2)}</small>` : ''}</div>`
         : `<button class="d-mini" data-act="lab" data-v="${l.id}">${esc(L.pull)}</button>`}
     </li>`;
-  }).join('');
+  };
+  const group = (title: string, items: LabData[]) => `<p class="label d-labsec">${esc(title)}</p><ul class="d-labs">${items.map(labRow).join('')}</ul>`;
+  const rows = group(L.sections.lab, LABS.filter((l) => !l.kind)) + group(L.sections.anthro, LABS.filter((l) => l.kind === 'anthro'));
   const feed = S.feed.slice().reverse().map((id) => `<li><b>${esc(labText(id).name)}</b><span>${esc(labText(id).effect)}</span></li>`).join('');
   return `<div class="d-grid wide">
     <section><p class="kicker">${esc(L.kicker)}</p><h1>${esc(L.title)}</h1><p class="body">${esc(L.body)}</p>
       <button class="btn" data-act="labsAll" data-demo="labsAll">${esc(L.pullAll)}</button>
-      <ul class="d-labs">${rows}</ul></section>
+      ${rows}<p class="note">${esc(L.refNote)}</p></section>
     <section class="plate d-feed" data-demo="feed"><p class="label">${esc(L.feed)}</p>
       ${feed ? `<ul>${feed}</ul>` : `<p class="note">${esc(L.feedEmpty)}</p>`}
       <div class="d-next"><button class="btn small" data-act="go" data-v="3">${esc(D.ui.continueTo)}: ${esc(D.ui.nav[3])}</button></div></section>
@@ -255,12 +259,12 @@ function renderDrawer() {
   const d = D.detail;
   const freq = (Object.keys(f.freq) as (keyof typeof f.freq)[]).map((k) => {
     const pct = Math.round(f.freq[k] * 1000) / 10;
-    return `<div class="fr"><span>${esc(d.pops[k])}</span><i><b style="width:${pct}%"></b></i><em>${num(pct)}%</em></div>`;
+    return `<div class="fr"><span>${esc(d.pops[k])}</span><i><b style="width:${pct}%"></b></i><em>${num(pct)}${lang === 'ru' ? NB : ''}%</em></div>`;
   }).join('');
   const labs = f.labs.filter((id) => S.labs[id]).map((id) => {
     const l = LABS.find((x) => x.id === id)!;
     const lt = labText(id);
-    return `<li>${esc(lt.name)}: <b>${num(labValue(l))} ${esc(lt.unit)}</b> <i class="${labHigh(l) ? 'hi' : 'ok'}">${esc(labHigh(l) ? D.labs.above : D.labs.inRange)}</i></li>`;
+    return `<li>${esc(lt.name)}: <b>${num(labValue(l))}${NB}${esc(lt.unit)}</b> <i class="${labHigh(l) ? 'hi' : 'ok'}">${esc(labHigh(l) ? D.labs.above : D.labs.inRange)}</i></li>`;
   }).join('');
   drawer.hidden = false;
   drawer.innerHTML = `<div class="d-scrim" data-act="closeDrawer"></div>
@@ -318,7 +322,7 @@ function showSummary() {
     const dec = S.decisions[i.id] as keyof typeof D.doctor.decided | undefined;
     return `- ${t.title} [${f.gene} ${f.rsid}; ${stateOf(f).label}]${dec ? ` — ${D.doctor.decided[dec]}` : ''}\n  ${t.why}`;
   });
-  const labs = LABS.filter((l) => S.labs[l.id]).map((l) => `- ${labText(l.id).name}: ${num(labValue(l))} ${labText(l.id).unit}`);
+  const labs = LABS.filter((l) => S.labs[l.id]).map((l) => `- ${labText(l.id).name}: ${num(labValue(l))}${NB}${labText(l.id).unit}`);
   const body = [s.header, '', `${s.patient}: ${D.patient.name}, ${D.patient.meta}`, '', `${s.items}:`, ...(items.length ? items : [s.none]), '', `${s.labs}:`, ...(labs.length ? labs : [s.none]), '', s.limits].join('\n');
   modal.innerHTML = `<div class="d-scrim" data-act="closeModal"></div><div class="d-dialog wide" role="dialog" aria-modal="true" aria-label="${esc(D.doctor.summaryTitle)}">
     <h2>${esc(D.doctor.summaryTitle)}</h2><pre class="d-sum" data-sum>${esc(body)}</pre>

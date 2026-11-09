@@ -5,7 +5,7 @@ export function typographRu(s: string): string {
   return s
     .replace(/ — /g, `${NBSP}— `)
     .replace(/(\d) (?=\d{3}(\D|$))/g, `$1${NBSP}`)
-    .replace(/(\d) (%|ГБ|МБ|SNP|нояб\.|ноября)/g, `$1${NBSP}$2`)
+    .replace(/(\d) (%|ГБ|МБ|SNP|нояб\.|ноября|ммоль\/л|мкмоль\/л|мкг\/л|кг\/м²|лет|недель|тыс\.)/g, `$1${NBSP}$2`)
     .replace(SHORT, `$1$2${NBSP}`)
     .replace(SHORT, `$1$2${NBSP}`);
 }

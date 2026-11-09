@@ -67,6 +67,10 @@ button.d-card:hover { border-color: rgba(46, 201, 143, 0.6); transform: translat
 .d-lab { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 18px; padding: 12px 0; border-bottom: 1px solid var(--line); }
 .d-lab .n b { display: block; font-weight: 500; font-size: 15.5px; }
 .d-lab .n span { font: 400 12px var(--mono); color: var(--ink-3); }
+.d-lab .n small { display: block; margin-top: 3px; font-size: 12.5px; line-height: 1.4; color: var(--ink-3); }
+.d-lab .n { max-width: 34rem; }
+.d-labsec { margin: 20px 0 6px; }
+.d-labsec + .d-labs { margin-top: 0; }
 .d-lab .v { text-align: right; }
 .d-lab .v b { font: 300 1.3rem var(--display); }
 .d-lab .v span { font-size: 12.5px; color: var(--ink-3); }

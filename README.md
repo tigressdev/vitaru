@@ -22,6 +22,8 @@ npm run build
 | `/ru/demo`, `/en/demo` | Working demo with the fictional patient Alexey Ivanov: file, results, labs, doctor, API, plus a guided tour |
 | `/ru/lab`, `/en/lab` | Research lab: EM and SQUAREM computed live on synthetic populations, with the duality-gap certificate, identifiability checks and the research architecture |
 
+Russian terminology follows the audit of 2026-11-09; `tests/ru-terms.test.mjs` fails if the replaced calques return.
+
 `/` shows Russian on a first visit and redirects to `/en` only if the visitor previously clicked EN. `navigator.language` is
 never read. Text lives in `src/content/`; the build fails if the RU and EN structures differ, including array lengths.
 
