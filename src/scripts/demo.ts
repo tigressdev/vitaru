@@ -38,7 +38,12 @@ let S = load();
 let openFinding: string | null = null;
 let importing = false;
 let auto = 0;
-const save = () => { try { sessionStorage.setItem(STORE, JSON.stringify(S)); } catch { /* storage unavailable */ } };
+let scripted = false; // the last tour step changed state on the visitor's behalf
+let pendingConsent = false;
+let shownFinding: string | null = null;
+let drawerOpener: HTMLElement | null = null;
+let modalOpener: HTMLElement | null = null;
+const save =() => { try { sessionStorage.setItem(STORE, JSON.stringify(S)); } catch { /* storage unavailable */ } };
 
 const q = <T extends HTMLElement>(s: string) => document.querySelector<T>(s)!;
 const esc = (v: unknown) => String(v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
@@ -102,7 +107,7 @@ function screenImport() {
         : `<button class="d-drop" data-act="import" data-demo="drop" ${importing ? 'disabled' : ''}><b>${esc(importing ? s.running : s.drop)}</b><span>${esc(D.patient.file)}</span></button>`}
       <p class="note">${esc(s.dropNote)}</p>
     </section>
-    <section class="tf-term d-term" data-demo="terminal"><div class="tf-chrome"><i></i><i></i><i></i><span>vita-codex</span></div>
+    <section class="tf-term d-term" data-demo="terminal"><div class="tf-chrome"><i></i><i></i><i></i><span>vita-codex</span><span class="d-sim">${esc(s.simulated)}</span></div>
       <div class="d-lines">${lines || '<div class="e">_</div>'}</div></section>
   </div>`;
 }
@@ -205,15 +210,46 @@ function screenApi() {
       <p class="label" style="margin-top:26px">${esc(A.buyersTitle)}</p><div class="models d-buyers">${buyers}</div>
       <p class="note">${esc(A.note)}</p></section>
     <section class="tf-term d-api" data-demo="api">
-      <div class="tf-chrome"><i></i><i></i><i></i><span>POST /v1/clinical/gate</span></div>
+      <div class="tf-chrome"><i></i><i></i><i></i><span>POST /v1/clinical/gate</span><span class="d-sim">${esc(A.preview)}</span></div>
       <div class="d-apibar"><label>${esc(A.select)} <select data-act="apiSelect">${opts}</select></label><button class="d-mini" data-act="copyJson">${esc(D.ui.copy)}</button></div>
       <pre data-json>${esc(json)}</pre>
     </section>
   </div>`;
 }
 
+// While an overlay is open the content behind it is inert, which keeps keyboard focus inside it.
+// The tour stays reachable over the evidence panel because it is what opened that panel.
+function syncInert() {
+  const modalOpen = !modal.hidden;
+  const blocked = modalOpen || !!openFinding;
+  for (const el of [q('.d-head'), q('.d-banner'), main]) el.inert = blocked;
+  guide.inert = modalOpen;
+  drawer.inert = modalOpen;
+  document.body.classList.toggle('d-drawer-open', !!openFinding);
+}
+
+function restoreFocus(el: HTMLElement | null) {
+  // The opener may be gone (the tour re-renders its buttons) or may have been the page itself.
+  const usable = el && el !== document.body && el.isConnected;
+  (usable ? el : q('.d-nav [aria-current]')).focus();
+}
+
+function openedModal() {
+  modalOpener = document.activeElement as HTMLElement;
+  modal.hidden = false;
+  syncInert();
+  modal.querySelector<HTMLElement>('input, button')?.focus();
+}
+
 function renderDrawer() {
-  if (!openFinding) { drawer.hidden = true; drawer.innerHTML = ''; return; }
+  if (!openFinding) {
+    drawer.hidden = true;
+    drawer.innerHTML = '';
+    syncInert();
+    if (shownFinding) { shownFinding = null; restoreFocus(drawerOpener); }
+    return;
+  }
+  if (!shownFinding) drawerOpener = document.activeElement as HTMLElement;
   const f = finding(openFinding);
   const t = text(f.id);
   const d = D.detail;
@@ -228,7 +264,7 @@ function renderDrawer() {
   }).join('');
   drawer.hidden = false;
   drawer.innerHTML = `<div class="d-scrim" data-act="closeDrawer"></div>
-  <article class="d-panel" role="dialog" aria-modal="true" aria-label="${esc(t.q)}">
+  <article class="d-panel" role="dialog" aria-modal="${!S.guideOn}" aria-label="${esc(t.q)}">
     <button class="d-x" data-act="closeDrawer" aria-label="${esc(D.ui.close)}">×</button>
     <span class="d-gene">${esc(f.gene)} · ${esc(f.rsid)} · ${esc(f.genotype)}</span>
     <h2>${esc(t.q)}</h2>
@@ -256,17 +292,22 @@ function renderDrawer() {
     <div class="d-plain" style="margin-top:18px"><p class="label">${esc(d.next)}</p><p>${esc(t.next)}</p></div>
     <button class="d-mini" style="margin-top:16px" data-act="toApi" data-v="${f.id}">{ } ${esc(d.asApi)}</button>
   </article>`;
+  syncInert();
+  if (shownFinding !== openFinding || document.activeElement === document.body) {
+    shownFinding = openFinding;
+    drawer.querySelector<HTMLElement>('.d-x')!.focus();
+  }
 }
 
 function showConsent() {
   const c = D.consent;
-  modal.hidden = false;
-  modal.innerHTML = `<div class="d-scrim"></div><div class="d-dialog" role="dialog" aria-modal="true" aria-label="${esc(c.title)}">
+  modal.innerHTML =`<div class="d-scrim"></div><div class="d-dialog" role="dialog" aria-modal="true" aria-label="${esc(c.title)}">
     <h2>${esc(c.title)}</h2><p class="body">${esc(c.body)}</p>
     <label class="d-check"><input type="checkbox" data-consent> ${esc(c.a)}</label>
     <label class="d-check"><input type="checkbox" data-consent> ${esc(c.b)}</label>
     <div class="d-acts"><button class="btn small" data-act="consentYes" disabled>${esc(c.show)}</button><button class="d-mini" data-act="closeModal">${esc(c.keep)}</button></div>
   </div>`;
+  openedModal();
 }
 
 function showSummary() {
@@ -279,14 +320,20 @@ function showSummary() {
   });
   const labs = LABS.filter((l) => S.labs[l.id]).map((l) => `- ${labText(l.id).name}: ${num(labValue(l))} ${labText(l.id).unit}`);
   const body = [s.header, '', `${s.patient}: ${D.patient.name}, ${D.patient.meta}`, '', `${s.items}:`, ...(items.length ? items : [s.none]), '', `${s.labs}:`, ...(labs.length ? labs : [s.none]), '', s.limits].join('\n');
-  modal.hidden = false;
   modal.innerHTML = `<div class="d-scrim" data-act="closeModal"></div><div class="d-dialog wide" role="dialog" aria-modal="true" aria-label="${esc(D.doctor.summaryTitle)}">
     <h2>${esc(D.doctor.summaryTitle)}</h2><pre class="d-sum" data-sum>${esc(body)}</pre>
     <div class="d-acts"><button class="btn small" data-act="copySum">${esc(D.ui.copy)}</button><button class="d-mini" data-act="print">${esc(D.ui.print)}</button><button class="d-mini" data-act="closeModal">${esc(D.ui.close)}</button></div>
   </div>`;
+  openedModal();
 }
 
-const closeModal = () => { modal.hidden = true; modal.innerHTML = ''; };
+function closeModal() {
+  if (modal.hidden) return;
+  modal.hidden = true;
+  modal.innerHTML = '';
+  syncInert();
+  restoreFocus(modalOpener);
+}
 
 function renderNav() {
   nav.innerHTML = D.ui.nav.map((n, i) => `<button type="button" data-act="go" data-v="${i}" ${S.screen === i ? 'aria-current="step"' : ''}><b>${i + 1}</b>${esc(n)}</button>`).join('');
@@ -304,26 +351,43 @@ function render(animate = false) {
 
 // ─── guided tour ─────────────────────────────────────────────────────────────
 type GuideAction = () => void;
-const finishImport = () => { S.imported = true; S.logN = D.importScreen.log.length; };
+const finishImport = () => {
+  if (!S.imported) scripted = true;
+  S.imported = true;
+  S.logN = D.importScreen.log.length;
+};
+// Same transition as the "add all" button, so the tour and the visitor leave identical state.
+const addAllLabs = () => {
+  for (const l of LABS) if (!S.labs[l.id]) { S.labs[l.id] = true; S.feed.push(l.id); scripted = true; }
+};
 const ACTIONS: GuideAction[] = [
-  () => { openFinding = null; closeModal(); S.screen = 0; },
+  () => { openFinding = null; S.screen = 0; },
   () => { openFinding = null; finishImport(); S.screen = 0; },
   () => { openFinding = null; finishImport(); S.screen = 1; },
   () => { finishImport(); S.screen = 1; openFinding = 't2d'; },
   () => { finishImport(); S.screen = 1; openFinding = 'bmi'; },
-  () => { finishImport(); S.screen = 1; S.consent = true; openFinding = 'iron'; },
-  () => { finishImport(); openFinding = null; S.screen = 2; for (const l of LABS) if (!S.labs[l.id]) { S.labs[l.id] = true; S.feed.push(l.id); } },
-  () => { finishImport(); openFinding = null; S.screen = 3; for (const l of LABS) S.labs[l.id] = true; },
+  // The tour never grants consent: it stops at the same dialog the visitor would use.
+  () => { finishImport(); S.screen = 1; openFinding = S.consent ? 'iron' : null; pendingConsent = !S.consent; },
+  () => { finishImport(); openFinding = null; S.screen = 2; addAllLabs(); },
+  () => { finishImport(); openFinding = null; S.screen = 3; addAllLabs(); },
   () => { finishImport(); openFinding = null; S.screen = 4; },
 ];
 const GUIDE_FOR_SCREEN = [0, 2, 6, 7, 8]; // the tour step that narrates each screen
 const SPOT = ['[data-demo=drop],[data-demo=done]', '[data-demo=terminal]', '[data-demo=noscore]', '', '', '', '[data-demo=feed]', '.d-queue', '[data-demo=api]'];
 
 function applyGuide() {
+  scripted = false;
+  closeModal();
   ACTIONS[S.guideStep]();
   render(true);
   const sel = SPOT[S.guideStep];
   if (sel) document.querySelector(sel)?.classList.add('spot');
+  if (pendingConsent) {
+    pendingConsent = false;
+    stopAuto();
+    renderGuide();
+    showConsent();
+  }
 }
 
 function stopAuto() { clearInterval(auto); auto = 0; }
@@ -339,6 +403,7 @@ function renderGuide() {
   const n = D.guide.length;
   guide.innerHTML = `<div class="d-gstep">${esc(g.step)} ${S.guideStep + 1} / ${n}</div>
     <p>${esc(D.guide[S.guideStep].text)}</p>
+    ${scripted ? `<div class="d-gscript">${esc(g.scripted)}</div>` : ''}
     <div class="d-gbtn">
       <button class="d-mini" data-act="gPrev" ${S.guideStep === 0 ? 'disabled' : ''}>${esc(g.prev)}</button>
       <button class="d-mini pri" data-act="gNext" ${S.guideStep === n - 1 ? 'disabled' : ''}>${esc(g.next)}</button>

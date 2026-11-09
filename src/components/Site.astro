@@ -177,6 +177,10 @@ const figText = (name: string, n: number) => `${t.figures.prefix} ${n}. ${name} 
       <div data-tabpanel="proof" id="proof">
         <section class="sec" id="moat" data-scene="layers" data-fig={figText(t.figures.layers, 3)}>
           <div class="wrap">
+            <div class="band band-top" data-reveal>
+              <div><h3>{t.labBand.title}</h3><p>{t.labBand.body}</p></div>
+              <a class="btn" href={`/${lang}/lab`}>{t.labBand.cta}</a>
+            </div>
             <div class="col" data-reveal>
               <p class="kicker">{t.moat.kicker}</p>
               <h2>{t.moat.title}</h2>
@@ -226,6 +230,7 @@ const figText = (name: string, n: number) => `${t.figures.prefix} ${n}. ${name} 
             <div class="col" data-reveal>
               <p class="kicker">{t.ancestry.kicker}</p>
               <h2>{t.ancestry.title}</h2>
+              <p class="version-tag">{t.ancestry.versionTag}</p>
               <p class="body">{t.ancestry.body}</p>
               <ul class="stats">{t.ancestry.kpis.map((s) => <li><b>{s.value}</b><span>{s.label}</span></li>)}</ul>
             </div>
@@ -267,6 +272,7 @@ const figText = (name: string, n: number) => `${t.figures.prefix} ${n}. ${name} 
                 </div>
               </details>
               <p class="note">{t.ancestry.limits}</p>
+              <p style="margin-top:14px"><a class="link" href={`/${lang}/lab`}>{t.labBand.cta} →</a></p>
             </figure>
           </div>
         </section>

@@ -20,6 +20,7 @@ npm run build
 |---|---|
 | `/`, `/ru`, `/en` | Two tabs: **Business** (cycle hero, raw-to-decision slider, problem, buyers) and **Proof** (data moat, quality criteria, ancestry chart, corrections, status) |
 | `/ru/demo`, `/en/demo` | Working demo with the fictional patient Alexey Ivanov: file, results, labs, doctor, API, plus a guided tour |
+| `/ru/lab`, `/en/lab` | Research lab: EM and SQUAREM computed live on synthetic populations, with the duality-gap certificate, identifiability checks and the research architecture |
 
 `/` shows Russian on a first visit and redirects to `/en` only if the visitor previously clicked EN. `navigator.language` is
 never read. Text lives in `src/content/`; the build fails if the RU and EN structures differ, including array lengths.
@@ -49,6 +50,23 @@ The Carolina demo lives at demoapp.vitacodex.life (`_refs/vitacodex`), with an e
 | Sensitive findings hidden by default; no percentage from an odds ratio | Doctor decisions and the API response, generated in the browser |
 
 The clinical gate itself is design only. The demo shows target behaviour, and the page says so.
+
+## The research lab: what is real
+
+`src/scripts/lab-solver.ts` is a port of `engine/ancestry_solver.py` (candidate v3). It runs in the browser on synthetic
+matrices. The four scenarios are real solver behaviour; their seeds were searched, and nothing is scripted.
+
+```bash
+npm test
+```
+
+`tests/lab-solver.test.mjs` compares the port with `tests/lab-fixtures.json`, which `tests/generate_lab_fixtures.py` writes
+from the Python solver (that generator needs the private research repository). Current result: 14 scenarios, 57 tests,
+557 solver steps, largest difference 2.5×10⁻¹². SQUAREM steps are excluded once EM barely moves, because its acceptance test
+then compares likelihoods that differ only by rounding, so the branch taken depends on summation order. The Lab quotes these
+figures in `src/content/lab.ts`; update them if the fixtures change.
+
+The port is not validation of v3: there are no real-data results, and the tolerances are provisional.
 
 ## Where the numbers come from
 

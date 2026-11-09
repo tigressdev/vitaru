@@ -126,6 +126,7 @@ html:not(.js) .figcap { display: none; }
 .quotes q { display: block; font: 300 1.08rem/1.45 var(--display); quotes: '«' '»'; }
 html[lang='en'] .quotes q { quotes: '“' '”'; }
 .quotes cite { display: block; margin-top: 4px; font: 400 12.5px var(--mono); font-style: normal; color: var(--ink-3); }
+.version-tag { margin-bottom: 16px; padding: 8px 12px; border-left: 2px solid var(--amber); background: rgba(242, 138, 34, 0.1); font: 500 12.5px/1.5 var(--mono); color: var(--amber); }
 .bridge { margin-top: 26px; font: 300 1.2rem/1.4 var(--display); color: var(--ink); }
 .models.four { grid-template-columns: 1fr; }
 @media (min-width: 720px) { .models.four { grid-template-columns: repeat(2, 1fr); } }
@@ -145,6 +146,7 @@ html[lang='en'] .quotes q { quotes: '“' '”'; }
   display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px; margin-top: 26px; padding: clamp(20px, 3vw, 32px);
   border: 1px solid rgba(46, 201, 143, 0.35); background: rgba(46, 201, 143, 0.1); backdrop-filter: blur(8px);
 }
+.band-top { margin-top: 0; margin-bottom: 40px; }
 .band h3 { font-size: 1.6rem; }
 .band p { margin-top: 6px; color: var(--ink-2); font-size: 15.5px; max-width: 36rem; }
 .cmp td { font-size: 15px; }

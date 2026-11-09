@@ -1,0 +1,170 @@
+---
+import '../styles/global.css';
+import '../styles/lab.css';
+import { labDicts } from '../content/lab';
+
+interface Props { lang: 'ru' | 'en' }
+const { lang } = Astro.props;
+const t = labDicts[lang];
+const site = Astro.site!.origin;
+const presets = Object.entries(t.presets.items);
+const c = t.controls;
+---
+
+<!doctype html>
+<html lang={t.htmlLang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{t.meta.title}</title>
+    <meta name="description" content={t.meta.description} />
+    <meta name="theme-color" content="#050e08" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="canonical" href={`${site}/${lang}/lab`} />
+    <link rel="alternate" hreflang="ru" href={`${site}/ru/lab`} />
+    <link rel="alternate" hreflang="en" href={`${site}/en/lab`} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="VitaCodex" />
+    <meta property="og:title" content={t.meta.title} />
+    <meta property="og:description" content={t.meta.description} />
+    <meta property="og:locale" content={t.meta.ogLocale} />
+    <script is:inline>document.documentElement.classList.add('js');</script>
+  </head>
+  <body data-lang={lang}>
+    <div class="grid-bg" aria-hidden="true"></div>
+
+    <header class="d-head">
+      <a class="brand" href={`/${lang}#proof`}>vita<span>codex</span></a>
+      <span class="l-badge">{t.badge}</span>
+      <div class="d-right">
+        <a class="d-link" href={`/${lang}/demo`}>{t.demo}</a>
+        <div class="lang">
+          <a href="/ru/lab" hreflang="ru" lang="ru" data-lang-link="ru" aria-current={lang === 'ru' ? 'true' : undefined}>RU</a>
+          <i aria-hidden="true">|</i>
+          <a href="/en/lab" hreflang="en" lang="en" data-lang-link="en" aria-current={lang === 'en' ? 'true' : undefined}>EN</a>
+        </div>
+        <a class="d-link" href={`/${lang}#proof`}>{t.back}</a>
+      </div>
+    </header>
+
+    <main class="l-main">
+      <section class="l-intro">
+        <div>
+          <p class="kicker">{t.kicker}</p>
+          <h1>{t.title}</h1>
+          <p class="lede">{t.lede}</p>
+        </div>
+        <aside class="plate">
+          <p class="label">{t.honesty.label}</p>
+          <ul class="limits">{t.honesty.items.map((i) => <li>{i}</li>)}</ul>
+        </aside>
+      </section>
+
+      <noscript><p class="note">{t.noscript}</p></noscript>
+
+      <div class="l-app" data-lab>
+        <div class="l-presets" role="group" aria-label={t.presets.label}>
+          {presets.map(([key, p]) => (
+            <button type="button" data-preset={key} aria-pressed="false"><b>{p.name}</b><span>{p.hint}</span></button>
+          ))}
+        </div>
+
+        <p class="l-headline" data-headline aria-live="polite"></p>
+
+        <div class="l-stage">
+          <figure class="plate l-fig">
+            <figcaption><h2>{t.ternary.title}</h2><p class="sub">{t.ternary.hint}</p></figcaption>
+            <div class="l-ternary" data-ternary>
+              <canvas data-heat aria-hidden="true"></canvas>
+              <svg data-overlay role="img" aria-label={t.ternary.aria}></svg>
+              <div class="l-tip" data-tip hidden></div>
+            </div>
+            <ul class="l-legend">
+              <li><i class="ln em"></i>{t.ternary.legend.em}</li>
+              <li><i class="ln sq"></i>{t.ternary.legend.squarem}</li>
+              <li><i class="mk truth"></i>{t.ternary.legend.truth}</li>
+              <li><i class="mk start"></i>{t.ternary.legend.starts}</li>
+              <li><i class="mk draw"></i>{t.ternary.legend.draws}</li>
+            </ul>
+            <div class="l-scale">
+              <span>{t.ternary.scale}</span>
+              <i aria-hidden="true"></i>
+              <div>{t.ternary.bands.map((b) => <em>{b}</em>)}</div>
+            </div>
+          </figure>
+
+          <div class="l-side">
+            <section class="plate l-verdict">
+              <h2>{t.verdict.title}</h2>
+              <dl data-verdict></dl>
+              <p class="note">{t.verdict.practicalNote}</p>
+            </section>
+          </div>
+        </div>
+
+        <div class="l-controls plate">
+          <label class="l-range"><span>{c.separation}<output data-out="sep"></output></span><input type="range" min="0" max="100" step="1" data-input="sep" /><small>{c.separationHint}</small></label>
+          <label class="l-range"><span>{c.trueA}<output data-out="a"></output></span><input type="range" min="0" max="100" step="1" data-input="a" /></label>
+          <label class="l-range"><span>{c.trueB}<output data-out="b"></output></span><input type="range" min="0" max="100" step="1" data-input="b" /></label>
+          <div class="l-toggles">
+            <label class="d-check"><input type="checkbox" data-input="keep" /> <span>{c.keepSupport}<small>{c.keepHint}</small></span></label>
+            <div class="l-buttons">
+              <button type="button" class="btn small" data-act="play">{c.play}</button>
+              <button type="button" class="d-mini" data-act="sample">{c.newSample}</button>
+            </div>
+          </div>
+          <label class="l-range wide"><span>{c.scrub}<output data-out="maps"></output></span><input type="range" min="0" max="1000" step="1" data-input="scrub" /></label>
+        </div>
+
+        <section class="plate l-chart">
+          <h2>{t.chart.title}</h2><p class="sub">{t.chart.sub}</p>
+          <ul class="l-legend"><li><i class="ln em"></i>EM</li><li><i class="ln sq"></i>SQUAREM</li></ul>
+          <div class="l-plot" data-plot><div class="l-tip" data-plot-tip hidden></div></div>
+          <p class="axis">{t.chart.x}</p>
+        </section>
+
+        <section class="plate">
+          <h2>{t.table.title}</h2>
+          <div class="scroll-x"><table class="l-run" data-run></table></div>
+        </section>
+
+        <details class="plate l-matrix" open>
+          <summary><h2>{t.matrix.title}</h2></summary>
+          <p class="sub">{t.matrix.sub} {t.matrix.genotypeHint}</p>
+          <div class="scroll-x l-tablewrap"><table data-matrix></table></div>
+        </details>
+      </div>
+
+      <section class="l-method">
+        <h2>{t.method.title}</h2>
+        <div class="l-cards">
+          {t.method.items.map((m) => <article class="plate"><h3>{m.name}</h3><p>{m.body}</p></article>)}
+        </div>
+      </section>
+
+      <section class="l-method" id="architecture">
+        <p class="kicker">{t.engines.kicker}</p>
+        <h2>{t.engines.title}</h2>
+        <p class="body">{t.engines.body}</p>
+        <ol class="l-engines">
+          {t.engines.items.map((e) => (
+            <li class={e.live ? 'live' : ''}>
+              <b>{e.tag}</b>
+              <div><h3>{e.name}</h3><p>{e.method}</p></div>
+              <p class="st-text">{e.status}{e.live && <em>{t.engines.liveLabel}</em>}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section class="l-method">
+        <h2>{t.questions.title}</h2>
+        <ol class="l-questions">{t.questions.items.map((q) => <li>{q}</li>)}</ol>
+      </section>
+    </main>
+
+    <script>
+      import '../scripts/lab';
+    </script>
+  </body>
+</html>

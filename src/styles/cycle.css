@@ -160,3 +160,4 @@ html:not(.js) .cy-panel[hidden] { display: block; margin-top: 24px; }
 .tf-api { padding: 16px; border: 1px solid rgba(255, 255, 255, 0.08); background: rgba(0, 0, 0, 0.5); border-radius: 16px; font: 400 12px/1.8 var(--mono); color: rgba(255, 255, 255, 0.6); overflow-wrap: anywhere; transition: opacity 0.3s; }
 .tf-api b { color: var(--emerald); font-weight: 500; }
 .tf-api span { color: rgba(255, 255, 255, 0.45); }
+.tf-api em { font-style: normal; font-size: 11px; color: var(--amber); }

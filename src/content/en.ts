@@ -107,7 +107,8 @@ export const en = {
     pipeline: ['Raw', 'Gate', 'Decision'],
     play: '▶ auto-play',
     playing: 'playing...',
-    terminalTitle: 'vita-codex · terminal',
+    terminalTitle: 'vita-codex · terminal · illustration',
+    apiNote: 'API contract preview · no backend request',
     stateLabel: 'gate state',
     dims: ['Evidence', 'Transferability', 'Individual risk'],
     explains: 'What it means',
@@ -187,6 +188,11 @@ export const en = {
     bandTitle: 'See it on one patient.',
     bandBody: 'Alexey Ivanov is fictional. His file travels the whole cycle: upload, gate, labs, doctor, API.',
   },
+  labBand: {
+    title: 'Research lab: run the solver yourself',
+    body: 'EM and SQUAREM on synthetic populations, with the optimality certificate and identifiability checks computed live in your browser.',
+    cta: 'Open the lab',
+  },
   moat: {
     kicker: 'What is hard to copy',
     title: 'The asset is governed evidence, not a list of SNPs',
@@ -226,6 +232,7 @@ export const en = {
   },
   ancestry: {
     kicker: 'Measured result',
+    versionTag: 'Historical result of version 2 · not v3 performance · v3 has no real-data results',
     title: 'We show where the model stops being able to tell',
     body: 'Ancestry v2 uses supervised EM against 1000 Genomes and AADR, across 29 regions and 52,334 SNPs. It tells continents apart well and close neighbours poorly. In the product, ancestry is context for whether evidence transfers. It never rescales an effect.',
     kpis: [
